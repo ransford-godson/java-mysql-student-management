@@ -1,7 +1,8 @@
 package org.example;
-
+import org.example.dao.StudentDAO;
 import java.sql.*;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class StudentManager {
@@ -50,15 +51,15 @@ public class StudentManager {
                 }
             }
         }
+        private StudentDAO studentDAO;
 
-        public StudentManager(Connection connection , Scanner scanner){
-            this.connection=connection;
-            this.scanner= scanner;
-        }
+    public StudentManager(Connection connection, Scanner scanner) {
+        this.connection = connection;
+        this.scanner = scanner;
+        this.studentDAO = new StudentDAO(connection);
+    }
 
         public void addStudent(){
-            String sql = "INSERT INTO students(name,age,department) VALUES(?,?,?)";
-            try (PreparedStatement statement = connection.prepareStatement(sql);){
 
                 /*--------------- Accepting Input ------------*/
                 System.out.print("Enter student name: ");
@@ -67,85 +68,59 @@ public class StudentManager {
                 System.out.print("Enter student department: ");
                 String department = scanner.nextLine();
 
-                statement.setString(1, name);
-                statement.setInt(2, age);
-                statement.setString(3, department);
+            Student student = new Student(name,age,department);
 
-                int result = statement.executeUpdate();
-                System.out.println(result + " student added");
+            boolean success = studentDAO.addStudent(student);
 
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (success) {
+                System.out.println("Student added successfully.");
+            } else {
+                System.out.println("Failed to add student.");
             }
-
         }
         public void viewStudents(){
-            String sql = "SELECT * FROM students";
-            try(Statement statement = connection.createStatement();
-                ResultSet result = statement.executeQuery(sql)) {
+            List<Student> students = studentDAO.getAllStudents();
 
                 System.out.printf(
                         "%-5s %-17s %-10s %-25s%n",
                         "ID", "NAME", "AGE", "DEPARTMENT"
                 );
-                while (result.next()) {
 
-                    int id = result.getInt("id");
-                    String name = result.getString("name");
-                    int age = result.getInt("age");
-                    String department = result.getString("department");
+                for ( Student student: students) {
 
-                    System.out.printf(
-                            "%-5d %-17s %-10d %-25s%n",
-                            id, name, age, department
-                    );
+                    student.displayInfo();
                 }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
 
         }
         public void updateStudentRecord(){
-            String sql = "update students set age =? where Id=?";
-            try(  PreparedStatement statement = connection.prepareStatement(sql);) {
 
                 int id = getValidId();
                 int age = getValidAge();
 
-                statement.setInt(1, age);
-                statement.setInt(2, id);
-
-                int result = statement.executeUpdate();
-                if (result == 0){
-                    System.out.printf("Student with id number %d not found\n" ,id);
-                }else {
-                    System.out.println("Student record has been updated successfully");
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+            boolean success = studentDAO.updateStudentAge(id, age);
+            if (success) {
+                System.out.println("Student record updated successfully.");
+            } else {
+                System.out.println("Student not found or update failed.");
             }
-        }
+            }
+
         public void deleteStudentRecord(){
-            String sql = "DELETE  FROM students WHERE id=?";
-            try ( PreparedStatement statement = connection.prepareStatement(sql);){
 
                 int id = getValidId();
-                statement.setInt(1, id);
-                int result = statement.executeUpdate();
-                if (result == 0){
-                    System.out.printf("Student with id number %d not found\n" ,id);
-                }else {
-                    System.out.println("Student record has been deleted successfully");
-                }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
+                boolean success = studentDAO.deleteStudent(id);
+                if (success){
+                    System.out.printf("Student with ID %d record has been deleted\n",id);
+                }
+                else
+                    System.out.println("Student not found");
+
+
+
             }
 
-        }
+
         public void searchStudentID() {
 
             String sql = "SELECT * FROM students WHERE id = ?";
@@ -159,11 +134,14 @@ public class StudentManager {
                 try (ResultSet result = statement.executeQuery()) {
 
                     if (result.next()) {
-                        System.out.println("STUDENT FOUND");
-                        System.out.println("ID: " + result.getInt("id"));
-                        System.out.println("Name: " + result.getString("name"));
-                        System.out.println("Age: " + result.getInt("age"));
-                        System.out.println("Department: " + result.getString("department"));
+
+                        Student student = new Student(
+                                result.getInt("id"),
+                                result.getString("name"),
+                                result.getInt("age"),
+                                result.getString("department"));
+
+                        student.displayInfo();
                     } else {
                         System.out.printf("Student with ID %d  not found.%n", id );
                     }
@@ -184,23 +162,23 @@ public class StudentManager {
                 try(ResultSet result = statement.executeQuery();) {
 
                     while(result.next()){
-                        System.out.println("SEARCH RESULTS");
-                        System.out.println("ID: " + result.getInt("id"));
-                        System.out.println("Name: " + result.getString("name"));
-                        System.out.println("Age: " + result.getInt("age"));
-                        System.out.println("Department: " + result.getString("department"));
+                        Student student = new Student(
+                                result.getInt("id"),
+                                result.getString("name"),
+                                result.getInt("age"),
+                                result.getString("department"));
+
+                        student.displayInfo();
                         found=true;
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
 
                 if(!found){
                     System.out.println("No student found");
                 }
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         public void searchStudentByDepartment(){
@@ -213,18 +191,19 @@ public class StudentManager {
 
                 statement.setString(1,"%" + department + "%");
 
-                try {
-                    ResultSet result = statement.executeQuery();
+                try(ResultSet result = statement.executeQuery();) {
+
                     while(result.next()){
-                        System.out.println("SEARCH RESULTS");
-                        System.out.println("ID: " + result.getInt("id"));
-                        System.out.println("Name: " + result.getString("name"));
-                        System.out.println("Age: " + result.getInt("age"));
-                        System.out.println("Department: " + result.getString("department"));
+
+                        Student student = new Student(
+                                result.getInt("id"),
+                                result.getString("name"),
+                                result.getInt("age"),
+                                result.getString("department"));
+                        student.displayInfo();
+
                         found=true;
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
 
                 if(!found){
