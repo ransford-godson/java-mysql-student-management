@@ -122,98 +122,51 @@ public class StudentManager {
 
 
         public void searchStudentID() {
-
-            String sql = "SELECT * FROM students WHERE id = ?";
-
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-
                 int id = getValidId();
-
-                statement.setInt(1, id);
-
-                try (ResultSet result = statement.executeQuery()) {
-
-                    if (result.next()) {
-
-                        Student student = new Student(
-                                result.getInt("id"),
-                                result.getString("name"),
-                                result.getInt("age"),
-                                result.getString("department"));
-
-                        student.displayInfo();
-                    } else {
-                        System.out.printf("Student with ID %d  not found.%n", id );
-                    }
+                Student student = studentDAO.getStudentById(id);
+                if (student != null){
+                   student.displayInfo();
                 }
+                else
+                    System.out.println("Student not found");
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         public void searchStudentByName(){
-            String sql = "SELECT * FROM students WHERE name LIKE ?";
-            try(PreparedStatement statement = connection.prepareStatement(sql);) {
-                boolean found = false;
 
                 System.out.print("Enter student name: ");
                 String name = scanner.nextLine();
-                statement.setString(1,"%" + name + "%");
-                try(ResultSet result = statement.executeQuery();) {
-
-                    while(result.next()){
-                        Student student = new Student(
-                                result.getInt("id"),
-                                result.getString("name"),
-                                result.getInt("age"),
-                                result.getString("department"));
-
+                List<Student> students = studentDAO.searchStudentsByName(name);
+                if (students.isEmpty()){
+                    System.out.println("No student not found");
+                }
+                else {
+                    for(Student student: students){
                         student.displayInfo();
-                        found=true;
                     }
                 }
 
-                if(!found){
-                    System.out.println("No student found");
-                }
+                    }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+
+
         public void searchStudentByDepartment(){
-            String sql = "SELECT * FROM students WHERE department LIKE ?";
-            try(PreparedStatement statement = connection.prepareStatement(sql);) {
-                boolean found = false;
 
                 System.out.print("Enter department name: ");
                 String department = scanner.nextLine();
 
-                statement.setString(1,"%" + department + "%");
-
-                try(ResultSet result = statement.executeQuery();) {
-
-                    while(result.next()){
-
-                        Student student = new Student(
-                                result.getInt("id"),
-                                result.getString("name"),
-                                result.getInt("age"),
-                                result.getString("department"));
-                        student.displayInfo();
-
-                        found=true;
+                List<Student> students = studentDAO.searchStudentsByDepartment(department);
+                    if (students.isEmpty()){
+                        System.out.println("No student not found");
                     }
+                    else {
+                        for (Student student : students){
+                            student.displayInfo();
+                        }
+                    }
+
+
+
                 }
 
-                if(!found){
-                    System.out.println("No student found");
-                }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-
-
-}

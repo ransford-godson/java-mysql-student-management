@@ -81,15 +81,15 @@ public class StudentDAO {
         return false;
     }
 
-    public boolean deleteStudent(int id){
+    public boolean deleteStudent(int id) {
         String sql = "DELETE  FROM students WHERE id=?";
-        try ( PreparedStatement statement = connection.prepareStatement(sql);){
+        try (PreparedStatement statement = connection.prepareStatement(sql);) {
 
             statement.setInt(1, id);
             int result = statement.executeUpdate();
-            if (result != 0){
+            if (result != 0) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
 
@@ -100,7 +100,97 @@ public class StudentDAO {
         return false;
     }
 
+    public Student getStudentById(int id) {
 
+        String sql = "SELECT * FROM students WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+
+            statement.setInt(1, id);
+
+            try (ResultSet result = statement.executeQuery()) {
+
+                if (result.next()) {
+
+                    Student student = new Student(
+                            result.getInt("id"),
+                            result.getString("name"),
+                            result.getInt("age"),
+                            result.getString("department"));
+
+                    return student;
+                } else {
+                    return null;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<Student> searchStudentsByName(String name) {
+        String sql = "SELECT * FROM students WHERE name LIKE ?";
+        List<Student> students = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql);) {
+
+
+            statement.setString(1, "%" + name + "%");
+            try (ResultSet result = statement.executeQuery();) {
+
+                while (result.next()) {
+                    Student student = new Student(
+                            result.getInt("id"),
+                            result.getString("name"),
+                            result.getInt("age"),
+                            result.getString("department"));
+
+                    students.add(student);
+
+                }
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return students;
+    }
+
+    public List<Student> searchStudentsByDepartment(String department) {
+        String sql = "SELECT * FROM students WHERE department LIKE ?";
+        List<Student> students = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql);) {
+
+            statement.setString(1, "%" + department + "%");
+
+            try (ResultSet result = statement.executeQuery();) {
+
+                while (result.next()) {
+
+                    Student student = new Student(
+                            result.getInt("id"),
+                            result.getString("name"),
+                            result.getInt("age"),
+                            result.getString("department"));
+
+                    students.add(student);
+                }
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+
+        return students;
+    }
 }
 
 
