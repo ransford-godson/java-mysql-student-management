@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f965fb13-b2d8-42a2-82cf-0be8c5b74f79" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/StudentManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/StudentManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dao/StudentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dao/StudentDAO.java" afterDir="false" />
     </list>
@@ -76,12 +77,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/org/example/Main.java</url>
-          <line>36</line>
+          <line>43</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/main/java/org/example/dao/StudentDAO.java</url>
-          <line>61</line>
+          <line>56</line>
           <properties class="org.example.dao.StudentDAO" method="updateStudentAge">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />

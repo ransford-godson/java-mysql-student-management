@@ -1,20 +1,27 @@
 package org.example;
 
+import org.example.dao.StudentDAO;
+import org.example.service.StudentService;
 import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/java_practice";
-        String username = "root";
-        String password = "RANSFORD@123";
+        String url = System.getenv("DB_URL");
+        String username = System.getenv("DB_USERNAME");
+        String password = System.getenv("DB_PASSWORD");
 
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;
 
+
+
         try(  Connection connection = DriverManager.getConnection(url, username, password);
         ) {
-            StudentManager studentManager = new StudentManager(connection, scanner);
+            StudentDAO studentDAO = new StudentDAO(connection);
+            StudentService studentService = new StudentService(studentDAO);
+            StudentManager studentManager = new StudentManager(connection, scanner,studentService);
+
             while (isRunning) {
                 /*--------------- MENU ------------*/
                 System.out.println("===== STUDENT MANAGEMENT =====");

@@ -24,18 +24,13 @@ public class StudentDAO {
             statement.setString(1, student.getName());
             statement.setInt(2, student.getAge());
             statement.setString(3, student.getDepartment());
-            int result = statement.executeUpdate();
-            if (result != 0) {
-                return true;
-            } else
-                return false;
+            return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Failed to add student: " + e.getMessage());
+            return false;
         }
 
-
-        return false;
     }
 
     public List<Student> getAllStudents() {

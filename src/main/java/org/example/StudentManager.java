@@ -1,5 +1,5 @@
 package org.example;
-import org.example.dao.StudentDAO;
+import org.example.service.StudentService;
 import java.sql.*;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -51,12 +51,12 @@ public class StudentManager {
                 }
             }
         }
-        private StudentDAO studentDAO;
+        private StudentService studentService;
 
-    public StudentManager(Connection connection, Scanner scanner) {
+    public StudentManager(Connection connection, Scanner scanner , StudentService studentService) {
         this.connection = connection;
         this.scanner = scanner;
-        this.studentDAO = new StudentDAO(connection);
+        this.studentService= studentService;
     }
 
         public void addStudent(){
@@ -70,7 +70,7 @@ public class StudentManager {
 
             Student student = new Student(name,age,department);
 
-            boolean success = studentDAO.addStudent(student);
+            boolean success = studentService.addStudent(student);
 
             if (success) {
                 System.out.println("Student added successfully.");
@@ -79,7 +79,7 @@ public class StudentManager {
             }
         }
         public void viewStudents(){
-            List<Student> students = studentDAO.getAllStudents();
+            List<Student> students = studentService.getAllStudents();
 
                 System.out.printf(
                         "%-5s %-17s %-10s %-25s%n",
@@ -97,7 +97,7 @@ public class StudentManager {
                 int id = getValidId();
                 int age = getValidAge();
 
-            boolean success = studentDAO.updateStudentAge(id, age);
+            boolean success = studentService.updateStudentAge(id, age);
             if (success) {
                 System.out.println("Student record updated successfully.");
             } else {
@@ -109,7 +109,7 @@ public class StudentManager {
 
                 int id = getValidId();
 
-                boolean success = studentDAO.deleteStudent(id);
+                boolean success = studentService.deleteStudent(id);
                 if (success){
                     System.out.printf("Student with ID %d record has been deleted\n",id);
                 }
@@ -123,7 +123,7 @@ public class StudentManager {
 
         public void searchStudentID() {
                 int id = getValidId();
-                Student student = studentDAO.getStudentById(id);
+                Student student = studentService.getStudentById(id);
                 if (student != null){
                    student.displayInfo();
                 }
@@ -135,7 +135,7 @@ public class StudentManager {
 
                 System.out.print("Enter student name: ");
                 String name = scanner.nextLine();
-                List<Student> students = studentDAO.searchStudentsByName(name);
+                List<Student> students = studentService.searchStudentsByName(name);
                 if (students.isEmpty()){
                     System.out.println("No student not found");
                 }
@@ -154,7 +154,7 @@ public class StudentManager {
                 System.out.print("Enter department name: ");
                 String department = scanner.nextLine();
 
-                List<Student> students = studentDAO.searchStudentsByDepartment(department);
+                List<Student> students = studentService.searchStudentsByDepartment(department);
                     if (students.isEmpty()){
                         System.out.println("No student not found");
                     }
